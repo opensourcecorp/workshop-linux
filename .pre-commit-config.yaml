@@ -24,8 +24,8 @@ repos:
     - id: shfmt
       args: ['-l', '-i', '2', '-ci', '-sr', '-w']
     - id: shellcheck
-# - repo: https://github.com/antonbabenko/pre-commit-terraform
-#   rev: 1.92.1
-#   hooks:
-#     - id: terraform_fmt
-#     - id: terraform_docs
+- repo: https://github.com/antonbabenko/pre-commit-terraform
+  rev: 1.92.1
+  hooks:
+    - id: terraform_fmt
+    - id: terraform_docs

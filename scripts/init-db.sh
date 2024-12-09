@@ -67,6 +67,16 @@ sleep 3
 systemctl is-active "${postgres_service}" > /dev/null
 
 ###
+# Generate a 32-character random password with special characters
+DB_PASSWORD=$(openssl rand -base64 24 | tr -dc 'a-zA-Z0-9!@#$%^&*()' | head -c 32)
+
+# Save password to a restricted access file
+echo "${DB_PASSWORD}" > /etc/app_admin_db.pass
+chmod 600 /etc/app_admin_db.pass
+
+# Export for immediate use
+export DB_PASSWORD
+log-info "DB_PASSWORD: ${DB_PASSWORD}" #Logging for debug purposes
 log-info 'Setting up DB'
 psql -U postgres -c '
 CREATE TABLE IF NOT EXISTS scoring (
@@ -75,6 +85,21 @@ CREATE TABLE IF NOT EXISTS scoring (
   last_challenge_completed INTEGER,
   score INTEGER
 );
+
+-- Create app_admin user with a password from environment variable
+CREATE USER app_admin WITH PASSWORD '\''${DB_PASSWORD}'\'';
+
+-- Grant connect permission
+GRANT CONNECT ON DATABASE postgres TO app_admin;
+
+-- Grant usage on schema
+GRANT USAGE ON SCHEMA public TO app_admin;
+
+-- Grant specific permissions on scoring table
+GRANT SELECT, INSERT, UPDATE ON scoring TO app_admin;
+
+-- Grant permissions on sequence if you have any
+-- GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO app_admin;
 ' > /dev/null
 
 ###

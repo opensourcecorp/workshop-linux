@@ -67,7 +67,7 @@ _get-last-challenge-completed() {
 # _accrue-points adds monotonically-increasing point values, the rate of which
 # will increase over time at aggregate since this is called per-challenge.
 _accrue-points() {
-  psql -U postgres -h "${db_addr:-NOT_SET}" -c "
+  PGPASSWORD=$DB_PASSWORD psql -U app_admin -h "${db_addr:-NOT_SET}" -c "
     INSERT INTO scoring (
       timestamp,
       team_name,
