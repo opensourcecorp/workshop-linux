@@ -20,7 +20,7 @@ connect-aws:
 
 provision-local:
 # Don't re-provision DB at the same time, since it throws off team server tests
-	@vagrant provision db
+	@vagrant provision hub
 	@vagrant provision $(local_team_servers)
 
 provision-aws:

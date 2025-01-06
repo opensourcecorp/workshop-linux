@@ -18,8 +18,8 @@ if [[ -z "${team_name}" ]]; then
   log-fatal 'Env var "team_name" not set at runtime'
 fi
 
-if [[ -z "${db_addr}" ]]; then
-  log-fatal 'Env var "db_addr" not set at runtime'
+if [[ -z "${hub_addr}" ]]; then
+  log-fatal 'Env var "hub_addr" not set at runtime'
 fi
 
 ###
@@ -84,13 +84,13 @@ ufw default allow incoming
 ufw default allow outgoing
 ufw deny out 8000
 log-info 'Adding file for teams to know which IP to use for one of the networking challenges'
-printf '%s\n' "${db_addr}" > /home/appuser/.remote-ip.txt
+printf '%s\n' "${hub_addr}" > /home/appuser/.remote-ip.txt
 
 ###
 log-info 'Writing out vars to env file(s) for systemd services'
 rm -f "${wsroot}"/env && touch "${wsroot}"/env
 {
-  printf 'db_addr=%s\n' "${db_addr}"
+  printf 'hub_addr=%s\n' "${hub_addr}"
   printf 'team_name=%s\n' "$(hostname)"
 } >> "${wsroot}"/env
 
@@ -103,24 +103,24 @@ systemctl enable linux-workshop-admin.timer
 systemctl start linux-workshop-admin.timer
 
 ###
-_db_init() {
+_hub_init() {
   # shellcheck disable=SC1091
   source /usr/local/share/ezlog/src/main.sh
   log-info 'Waiting for DB to be reachable...'
-  until timeout 2s psql -U postgres -h "${db_addr}" -c 'SELECT NOW();' > /dev/null ; do
+  until timeout 2s psql -U postgres -h "${hub_addr}" -c 'SELECT NOW();' > /dev/null ; do
     log-info 'Still waiting for DB to be reachable...'
     sleep 5
   done
   log-info 'Successfully reached DB, trying to initialize with base values so team appears on dashboard...'
   # until-loop because DB can be reachable before schema is made
-  until psql -U postgres -h "${db_addr}" -c "INSERT INTO scoring (timestamp, team_name, last_challenge_completed, score) VALUES (NOW(), '$(hostname)', 0, 0);" > /dev/null ; do
+  until psql -U postgres -h "${hub_addr}" -c "INSERT INTO scoring (timestamp, team_name, last_challenge_completed, score) VALUES (NOW(), '$(hostname)', 0, 0);" > /dev/null ; do
     log-info 'Issue with setting base values; trying again...'
     sleep 1
   done
   log-info 'Successfully initialized with base values'
 }
-export -f _db_init
-timeout 180s bash -c _db_init
+export -f _hub_init
+timeout 180s bash -c _hub_init
 
 ###
 log-info 'Dumping the first instruction(s) to the appuser homedir'

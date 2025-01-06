@@ -20,7 +20,7 @@ fi
 # This file should have been populated on init
 # shellcheck disable=SC1091
 source "${wsroot}"/env || exit 1
-[[ -n "${db_addr:-}" ]] || exit 1
+[[ -n "${hub_addr:-}" ]] || exit 1
 
 # setup* and teardown* are bats-specifically-named pre-/post-test hook
 # functions. <setup|teardown>_file run once, period, and <setup|teardown> run
@@ -89,7 +89,7 @@ teardown_file() {
 }
 
 _reset-score() {
-  psql -U postgres -h "${db_addr}" -c "
+  psql -U postgres -h "${hub_addr}" -c "
     DELETE FROM scoring WHERE team_name = '$(hostname)';
     INSERT INTO scoring (timestamp, team_name, last_challenge_completed, score) VALUES (NOW(), '$(hostname)', 0, 0);
   "
@@ -101,7 +101,7 @@ _get-score() {
   # Need to stop again becaue starting the .service restarts the timer because
   # of its 'Want' directive
   systemctl stop linux-workshop-admin.timer
-  local score="$(psql -U postgres -h "${db_addr}" -tAc 'SELECT SUM(score) FROM scoring;')"
+  local score="$(psql -U postgres -h "${hub_addr}" -tAc 'SELECT SUM(score) FROM scoring;')"
   printf '%s' "${score}"
 }
 
@@ -288,7 +288,7 @@ _solve-challenge-7() {
   sleep 1
   printf 'DEBUG: Score from challenge 5: %s\n' "${score}"
   counter=0
-  until timeout 1s curl -fsSL "${db_addr}:8000" ; do
+  until timeout 1s curl -fsSL "${hub_addr}:8000" ; do
     printf 'Web app not reachable, trying again...\n' >&2
     counter="$((counter + 1))"
     if [[ "${counter}" -ge 30 ]] ; then

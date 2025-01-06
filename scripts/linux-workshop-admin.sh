@@ -67,7 +67,7 @@ _get-last-challenge-completed() {
 # _accrue-points adds monotonically-increasing point values, the rate of which
 # will increase over time at aggregate since this is called per-challenge.
 _accrue-points() {
-  psql -U postgres -h "${db_addr:-NOT_SET}" -c "
+  psql -U postgres -h "${hub_addr:-NOT_SET}" -c "
     INSERT INTO scoring (
       timestamp,
       team_name,
@@ -131,7 +131,7 @@ _check-debfile-service-running() {
 }
 
 _check-webapp-reachable() {
-  if timeout 1s curl -fsSL "${db_addr:-NOT_SET}:8000" > /dev/null ; then
+  if timeout 1s curl -fsSL "${hub_addr:-NOT_SET}:8000" > /dev/null ; then
     _score-for-challenge 5
   else
     log-error "web app is not reachable"
