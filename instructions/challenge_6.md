@@ -8,7 +8,7 @@ dissappeared while on a golfing trip a few weeks past. We were told that the
 code was about ready to deploy, just hadn't gotten the chance to merge it into
 the main branch. See if you can figure out how to get it up and running.
 
-The name of the app is 'carrot-cruncher'. The last dev got the repo set up
+The name of the app is "carrot-cruncher". The last dev got the repo set up
 somewhere on disk, but they never said where... hopefully you'll able to find
 it. When you do, supposedly there was a new working branch pushed to the remote
 repo, so you'll need to figure out how to authenticate to that repo.

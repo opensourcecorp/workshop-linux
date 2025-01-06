@@ -18,6 +18,6 @@ following:
 - Once there, the app there needs to be named `run-app`, not `app`
 
 - To ensure both locations always have the same version (e.g. during hotfixes),
-  make a reference from the binary location to the target location without
-  copying the actual file. This way, any update or change will reflect in both
+  make a reference from the binary location to the target location *without
+  copying the actual file*. This way, any update or change will reflect in both
   places at once without needing to manually sync them.
