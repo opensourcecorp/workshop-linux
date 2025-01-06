@@ -15,5 +15,5 @@ Create that service, and get it running. You need to make sure it runs *even if
 the system reboots* -- meaning that if the server is restarted for any reason,
 the app service needs to start again *without you starting it manually*.
 
-If for any reason you need to check out more detailed logs of the service, you
-can also use the separate `journalctl` command to inspect them.
+If for any reason you need to check out more detailed logs of the service you're
+creating, you can also use the separate `journalctl` command to inspect them.

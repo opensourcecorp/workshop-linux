@@ -1,4 +1,4 @@
-local_team_servers := $(shell vagrant status | grep -E -o 'team[0-9]+')
+local_team_servers = $(shell vagrant status | grep -E -o 'team[0-9]+')
 
 ci:
 	@bash ./scripts/ci.sh
@@ -20,7 +20,7 @@ connect-aws:
 
 provision-local:
 # Don't re-provision DB at the same time, since it throws off team server tests
-	@vagrant provision db
+	@vagrant provision hub
 	@vagrant provision $(local_team_servers)
 
 provision-aws:

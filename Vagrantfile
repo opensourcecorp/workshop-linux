@@ -22,26 +22,26 @@ Vagrant.configure("2") do |config|
     config.vbguest.auto_update = false
   end
 
-  # DB server static IP
-  db_addr = "10.0.1.10"
-  ip_bytes = db_addr.split(".")
+  # hub server static IP
+  hub_addr = "10.0.1.10"
+  ip_bytes = hub_addr.split(".")
 
-  config.vm.define "db" do |db|
-    db.vm.box = box
+  config.vm.define "hub" do |hub|
+    hub.vm.box = box
 
-    db.vm.network "private_network", ip: db_addr
-    db.vm.network "forwarded_port", guest: 5432, host: 5432, protocol: "tcp" # DB
-    db.vm.network "forwarded_port", guest: 8000, host: 8000, protocol: "tcp" # Dummy web app
-    db.vm.network "forwarded_port", guest: 8080, host: 8080, protocol: "tcp" # Score dashboard
+    hub.vm.network "private_network", ip: hub_addr
+    hub.vm.network "forwarded_port", guest: 5432, host: 5432, protocol: "tcp" # hub
+    hub.vm.network "forwarded_port", guest: 8000, host: 8000, protocol: "tcp" # Dummy web app
+    hub.vm.network "forwarded_port", guest: 8080, host: 8080, protocol: "tcp" # Score dashboard
 
-    db.vm.synced_folder ".", "/vagrant", disabled: true
+    hub.vm.synced_folder ".", "/vagrant", disabled: true
 
-    db.vm.provision "file", source: "./scripts", destination: "/tmp/scripts"
-    db.vm.provision "file", source: "./services", destination: "/tmp/services"
-    db.vm.provision "file", source: "./score-server", destination: "/tmp/score-server"
-    db.vm.provision "file", source: "./dummy-web-app", destination: "/tmp/dummy-web-app"
+    hub.vm.provision "file", source: "./scripts", destination: "/tmp/scripts"
+    hub.vm.provision "file", source: "./services", destination: "/tmp/services"
+    hub.vm.provision "file", source: "./score-server", destination: "/tmp/score-server"
+    hub.vm.provision "file", source: "./dummy-web-app", destination: "/tmp/dummy-web-app"
 
-    db.vm.provision "shell",
+    hub.vm.provision "shell",
       inline: <<-SCRIPT
         #!/usr/bin/env bash
         set -euo pipefail
@@ -52,7 +52,7 @@ Vagrant.configure("2") do |config|
 
         rm -rf /root/{score-server,services,dummy-web-app}
         sudo cp -r /tmp/{score-server,services,dummy-web-app} /root/
-        bash /tmp/scripts/init-db.sh
+        bash /tmp/scripts/init-hub.sh
       SCRIPT
   end
 
@@ -81,7 +81,7 @@ Vagrant.configure("2") do |config|
           sudo systemctl restart ssh
 
           export team_name="Team-#{i}"
-          export db_addr='#{db_addr}'
+          export hub_addr='#{hub_addr}'
           bash /tmp/scripts/init.sh
           bats -F pretty /.ws/scripts/test.bats
         SCRIPT

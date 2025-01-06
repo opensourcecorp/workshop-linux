@@ -5,7 +5,7 @@ provider "aws" {
 }
 
 locals {
-  db_ip   = "10.0.1.10"
+  hub_ip  = "10.0.1.10"
   region  = var.aws_region
   name    = "${var.event_name}-osc-workshop-linux"
   my_cidr = "${chomp(data.http.my_ip.response_body)}/32"
@@ -89,11 +89,11 @@ module "security_group" {
   tags = local.tags
 }
 
-module "db" {
+module "hub" {
   source  = "terraform-aws-modules/ec2-instance/aws"
   version = "~> 4.0"
 
-  name = "${local.name}-db"
+  name = "${local.name}-hub"
 
   ami                         = data.aws_ami.latest.id
   instance_type               = "t3a.micro"

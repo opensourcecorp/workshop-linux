@@ -5,12 +5,12 @@ import (
 	"net"
 	"net/http"
 
-	fetchserver "github.com/opensourcecorp/workshops/linux/score-server/pkg/fetch-server"
+	hubserver "github.com/opensourcecorp/workshops/linux/score-server/internal/hub-server"
 	"github.com/sirupsen/logrus"
 )
 
 func main() {
-	http.HandleFunc("/", fetchserver.Root)
+	http.HandleFunc("/", hubserver.Root)
 
 	addr := net.JoinHostPort("0.0.0.0", "8080")
 	logrus.Infof("Starting server on %s\n", addr)
