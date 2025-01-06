@@ -1,4 +1,4 @@
-local_team_servers := $(shell vagrant status | grep -E -o 'team[0-9]+')
+local_team_servers = $(shell vagrant status | grep -E -o 'team[0-9]+')
 
 ci:
 	@bash ./scripts/ci.sh
