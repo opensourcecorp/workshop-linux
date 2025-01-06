@@ -24,6 +24,7 @@ if [[ "$(</tmp/go-modules wc -l)" -gt 0 ]] ; then
   printf '> Installing CI checks for Go...\n'
   for pkg in \
     honnef.co/go/tools/cmd/staticcheck@latest \
+    github.com/mgechev/revive@latest \
     github.com/kisielk/errcheck@latest \
   ; do
     go install "${pkg}"
@@ -39,9 +40,11 @@ while read -r module ; do
     cd "${mod_dir}"
     printf '>> Running go vet...\n'
     go vet ./...
-    printf '>> Running linter...\n'
+    printf '>> Running staticcheck linter...\n'
     staticcheck ./...
-    printf '>> Running error checker...\n'
+    printf '>> Running revive linter...\n'
+    revive --set_exit_status ./...
+    printf '>> Running error-checker...\n'
     errcheck ./...
   )
 done < /tmp/go-modules

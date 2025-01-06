@@ -1,6 +1,6 @@
-// Package fetchserver implements server-side and template-rendering logic for
-// the score fetcher service
-package fetchserver
+// Package hubserver implements server-side and template-rendering logic for
+// the Hub server's score retrieval & display services
+package hubserver
 
 import (
 	"bytes"

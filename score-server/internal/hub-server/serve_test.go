@@ -1,4 +1,4 @@
-package fetchserver
+package hubserver
 
 import (
 	"reflect"
