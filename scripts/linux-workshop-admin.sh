@@ -35,13 +35,13 @@ _score-for-challenge() {
       log-info "Providing instruction to user for Challenge ${next_challenge}"
       cp "${wsroot}/instructions/challenge_${next_challenge}.md" /home/appuser/
       # Also broadcast message to user when challenge is complete
-      wall "Congrats on finishing Challenge ${which_challenge}! Be sure to check your home directory for any new instruction files! (hit any key to dismiss this message)"
+      wall "Congrats on finishing Challenge ${which_challenge}! Be sure to check your home directory for any new instruction files! (hit Enter to dismiss this message)"
     else
       log-info 'Team is done with the workshop!'
       cp "${wsroot}/instructions/congrats.md" /home/appuser/
       # This check suppresses an infinite loop of congratulations, lol
       if [[ ! -f "${wsroot}"/team_has_been_congratulated ]] ; then
-        wall "Congratulations -- you have completed ALL CHALLENGES! Be sure to read congrats.md in your home directory! (hit any key to dismiss this message)"
+        wall "Congratulations -- you have completed ALL CHALLENGES! Be sure to read congrats.md in your home directory! (hit Enter to dismiss this message)"
         touch "${wsroot}"/team_has_been_congratulated
       fi
     fi

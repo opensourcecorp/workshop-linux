@@ -20,8 +20,8 @@ module "vpc" {
   name = local.name
   cidr = "10.0.0.0/16"
 
-  azs            = [data.aws_availability_zones.available.names[0]]
-  public_subnets = ["10.0.1.0/24"]
+  azs            = [data.aws_availability_zones.available.names[0], data.aws_availability_zones.available.names[1]]
+  public_subnets = cidrsubnets("10.0.0.0/16", 8, 8)
 
   enable_nat_gateway = false
 
@@ -124,7 +124,7 @@ module "team_servers" {
   instance_type               = "t3a.micro"
   key_name                    = aws_key_pair.main.key_name
   vpc_security_group_ids      = [module.security_group.security_group_id]
-  subnet_id                   = module.vpc.public_subnets[0]
+  subnet_id                   = module.vpc.public_subnets[count.index % 2]
   associate_public_ip_address = true
 
   user_data = <<-EOF
