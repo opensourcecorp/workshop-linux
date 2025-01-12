@@ -29,11 +29,11 @@ resource "aws_route53_record" "teams" {
   depends_on = [aws_route53_record.hub]
 }
 
-resource "aws_route53_record" "hub" {
+resource "aws_route53_record" "db" {
   count   = var.create_dns ? 1 : 0
   zone_id = aws_route53_zone.workshop_zone[0].zone_id
-  name    = "hub"
+  name    = "db"
   type    = "A"
   ttl     = 300 #5 mins
-  records = [module.hub.public_ip]
+  records = [module.db.public_ip]
 }

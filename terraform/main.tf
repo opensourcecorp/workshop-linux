@@ -134,7 +134,7 @@ module "team_servers" {
     grep -q 2332 /etc/ssh/sshd_config || printf 'Port 2332\nPort 22\n' >> /etc/ssh/sshd_config
     systemctl restart ssh
     # Variables to be sourced before init.sh runs
-    printf 'export team_name="Team-${count.index + 1}"\nexport db_addr="${module.db.public_ip}"\n' > /tmp/.tfenv
+    printf 'export team_name="Team-${count.index + 1}"\nexport db_addr="${module.db.private_ip}"\n' > /tmp/.tfenv
   EOF
 
   tags = local.tags
