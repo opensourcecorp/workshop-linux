@@ -32,3 +32,15 @@ variable "ssh_local_key_path" {
   type        = string
   default     = "~/.ssh/id_rsa.pub"
 }
+
+variable "create_dns" {
+  description = "Whether to create a Route53 DNS zone for the workshop instances"
+  type        = bool
+  default     = false
+}
+
+variable "zone_name" {
+  description = "Route53 zone name to use for workshop instances"
+  type        = string
+  default     = null
+}
