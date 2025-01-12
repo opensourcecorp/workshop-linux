@@ -10,6 +10,7 @@ services:
     command:
       - --base=/
       - --ssh-host=team-1.codemash.sbx.justindebo.com
+      - --title "OSC Workshop"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.wetty.rule=Host(`team-1.codemash.sbx.justindebo.com`)"
