@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # Install ezlog
-command -v git > /dev/null || { apt-get update && apt-get install -y git ;}
+command -v git > /dev/null || { apt-get update && apt-get install -y git; }
 git config --global http.sslVerify false # Workaround for corporate proxy installs
 [[ -d /usr/local/share/ezlog ]] || git clone 'https://github.com/opensourcecorp/ezlog.git' /usr/local/share/ezlog
 # shellcheck disable=SC1091
@@ -25,7 +25,7 @@ fi
 ###
 log-info 'Setting hostname to be equal to team name'
 hostnamectl set-hostname "${team_name}"
-if grep -v -q "${team_name}" /etc/hosts ; then
+if grep -v -q "${team_name}" /etc/hosts; then
   printf '\n 127.0.0.1    %s\n' "${team_name}" >> /etc/hosts
 fi
 
@@ -62,7 +62,7 @@ chown -R appuser:appuser /opt/app
 
 ###
 log-info 'Installing any needed system packages'
-apt-get update && apt-get install -y \
+DEBIAN_FRONTEND=noninteractive apt-get -qq update && apt-get -qq install -y \
   apt-transport-https \
   bats \
   ca-certificates \
@@ -75,7 +75,7 @@ apt-get update && apt-get install -y \
   postgresql-client \
   sudo \
   tree \
-  ufw
+  ufw > /dev/null 2>&1 # Quiet install please
 
 ###
 log-info 'Opening all firewall rules for ufw, then blocking outbound 8000 for the dummy web app'
@@ -107,13 +107,13 @@ _hub_init() {
   # shellcheck disable=SC1091
   source /usr/local/share/ezlog/src/main.sh
   log-info 'Waiting for DB to be reachable...'
-  until timeout 2s psql -U postgres -h "${hub_addr}" -c 'SELECT NOW();' > /dev/null ; do
+  until timeout 2s psql -U postgres -h "${hub_addr}" -c 'SELECT NOW();' > /dev/null; do
     log-info 'Still waiting for DB to be reachable...'
     sleep 5
   done
   log-info 'Successfully reached DB, trying to initialize with base values so team appears on dashboard...'
   # until-loop because DB can be reachable before schema is made
-  until psql -U postgres -h "${hub_addr}" -c "INSERT INTO scoring (timestamp, team_name, last_challenge_completed, score) VALUES (NOW(), '$(hostname)', 0, 0);" > /dev/null ; do
+  until psql -U postgres -h "${hub_addr}" -c "INSERT INTO scoring (timestamp, team_name, last_challenge_completed, score) VALUES (NOW(), '$(hostname)', 0, 0);" > /dev/null; do
     log-info 'Issue with setting base values; trying again...'
     sleep 1
   done
@@ -126,14 +126,25 @@ timeout 180s bash -c _hub_init
 log-info 'Dumping the first instruction(s) to the appuser homedir'
 cp "${wsroot}"/instructions/challenge_{0,1}.md /home/appuser/
 
+## Make all scripts executable
+sudo chmod +x /tmp/scripts/setup-*.sh
+
+## Setup docker and start wetty
+if /tmp/scripts/setup-docker.sh; then
+  log-info 'Docker setup completed successfully. Deploying Wetty'
+  if ! /tmp/scripts/setup-wetty.sh; then
+    log-fatal 'Wetty setup failed.'
+  fi
+else
+  log-fatal 'Docker setup failed.'
+fi
 
 ### Setup a local git server and clone to repo
-if ! (cd /srv/git/repositories/carrot-cruncher.git && git show-ref --verify --quiet "refs/heads/release/bunnies_v1" && [[ -f /home/git/git-shell-commands/no-interactive-login ]]) ; then
-  sudo chmod +x /tmp/scripts/setup-git.sh
+if ! (cd /srv/git/repositories/carrot-cruncher.git && git show-ref --verify --quiet "refs/heads/release/bunnies_v1" && [[ -f /home/git/git-shell-commands/no-interactive-login ]]); then
   if /tmp/scripts/setup-git.sh; then
-      log-info "Git server setup completed successfully."
+    log-info "Git server setup completed successfully."
   else
-      log-fatal "Git server setup failed."
+    log-fatal "Git server setup failed."
   fi
 fi
 

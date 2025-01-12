@@ -7,7 +7,7 @@ data "aws_route53_zone" "root_zone" {
 
 resource "aws_route53_zone" "workshop_zone" {
   count = var.create_dns ? 1 : 0
-  name  = "${var.event_name}.${var.zone_name}"
+  name  = local.dns_root
 }
 
 resource "aws_route53_record" "workshop" {

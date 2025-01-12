@@ -12,6 +12,7 @@ locals {
   tags = {
     event_name = var.event_name
   }
+  dns_root = var.create_dns ? "${var.event_name}.${var.zone_name}" : "none"
 }
 
 module "vpc" {
@@ -133,9 +134,11 @@ module "team_servers" {
     # NOTE: setting sshd to listen on both 2332 AND regular 22
     grep -q 2332 /etc/ssh/sshd_config || printf 'Port 2332\nPort 22\n' >> /etc/ssh/sshd_config
     systemctl restart ssh
+    echo team-${count.index + 1}.${local.dns_root} > /tmp/dns.txt
   EOF
 
-  tags = local.tags
+  tags                        = local.tags
+  user_data_replace_on_change = true
 }
 
 resource "aws_key_pair" "main" {

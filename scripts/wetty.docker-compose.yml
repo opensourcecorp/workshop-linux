@@ -9,11 +9,11 @@ services:
     image: wettyoss/wetty
     command:
       - --base=/
-      - --ssh-host=team-1.codemash.sbx.justindebo.com
+      - --ssh-host=<hostname>
       - --title "OSC Workshop"
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.wetty.rule=Host(`team-1.codemash.sbx.justindebo.com`)"
+      - "traefik.http.routers.wetty.rule=Host(`<hostname>`)"
       - "traefik.http.routers.wetty.tls.certResolver=default"
       - "traefik.http.routers.wetty.tls=true"
 

@@ -11,7 +11,7 @@ SSH_PORT=${SSH_PORT:-2332}
 BRANCH_NAME=${BRANCH_NAME:-release/bunnies_v1}
 
 # Install ezlog
-command -v git >/dev/null || { apt-get update && apt-get install -y git; }
+command -v git > /dev/null || { apt-get update && apt-get install -y git; }
 [[ -d /usr/local/share/ezlog ]] || git clone 'https://github.com/opensourcecorp/ezlog.git' /usr/local/share/ezlog
 # shellcheck disable=SC1091
 source /usr/local/share/ezlog/src/main.sh
@@ -33,13 +33,13 @@ function _setup_ssh_keys_for_git_user() {
   fi
 
   # Add the public key to authorized_keys if it's not already there
-  if ! grep -q "$(cat "${public_key_file}")" "${authorized_keys_file}" 2>/dev/null; then
-    cat "${public_key_file}" >>"${authorized_keys_file}"
+  if ! grep -q "$(cat "${public_key_file}")" "${authorized_keys_file}" 2> /dev/null; then
+    cat "${public_key_file}" >> "${authorized_keys_file}"
   fi
   chmod 600 "${authorized_keys_file}"
   chown "${GIT_USER}:${GIT_USER}" "${authorized_keys_file}"
   [[ -d /home/${APP_USER}/.ssh ]] || mkdir /home/"${APP_USER}"/.ssh
-  cat <<EOF >/home/"${APP_USER}"/.ssh/config
+  cat << EOF > /home/"${APP_USER}"/.ssh/config
 HOST localhost
       USER ${GIT_USER}
       PORT ${SSH_PORT}
@@ -54,7 +54,7 @@ function _add_to_known_hosts() {
 }
 
 function _setup_git_user() {
-  if id "${GIT_USER}" &>/dev/null; then
+  if id "${GIT_USER}" &> /dev/null; then
     log-info "User ${GIT_USER} already exists."
   else
     log-info "setting up git user"
@@ -63,7 +63,7 @@ function _setup_git_user() {
   fi
   _setup_ssh_keys_for_git_user
   # _add_to_known_hosts
-  which git-shell >>/etc/shells
+  which git-shell >> /etc/shells
   chsh --shell "$(command -v /bin/bash)" "${GIT_USER}"
 }
 
@@ -73,12 +73,12 @@ function _init_git_repo() {
   mkdir -p "${REPO_DIR}"
   [[ -d "${GIT_HOME}/ssh-keys" ]] || mkdir "${GIT_HOME}/ssh-keys"
   chown -R "${GIT_USER}:${GIT_USER}" "${GIT_HOME}"
-  pushd "${REPO_DIR}" >/dev/null || exit
+  pushd "${REPO_DIR}" > /dev/null || exit
   su - "${GIT_USER}" -c "git config --global init.defaultBranch ${DEFAULT_BRANCH}"
   su - "${GIT_USER}" -c "git config --global user.email 'bugs@bigbadbunnies.com'"
   su - "${GIT_USER}" -c "git config --global user.name 'Bugs Bunny'"
   su - "${GIT_USER}" -c "pushd ""${REPO_DIR}"" >/dev/null; git init --bare"
-  popd >/dev/null || exit
+  popd > /dev/null || exit
 }
 
 function _setup_local_clone() {
@@ -89,24 +89,24 @@ function _setup_local_clone() {
   fi
   mkdir "${WORK_DIR}"
   chmod 777 "${WORK_DIR}"
-  pushd "${WORK_DIR}" >/dev/null || exit
+  pushd "${WORK_DIR}" > /dev/null || exit
   su - "${GIT_USER}" -c "GIT_SSH_COMMAND='ssh -o StrictHostKeyChecking=accept-new' git clone '${GIT_USER}@localhost:${REPO_DIR}' ${clone_dir}"
   git config --global --add safe.directory /opt/git/carrot-cruncher
-  pushd "${clone_dir}" >/dev/null || exit
+  pushd "${clone_dir}" > /dev/null || exit
   cp -r "${APP_DIR}"/* .
   sed -i 's/PrintLine/Println/g' main.go
   su - "${GIT_USER}" -c "pushd ${clone_dir}; git add .; git commit -m 'Initial commit'; git push origin"
-  popd >/dev/null || exit
+  popd > /dev/null || exit
 }
 
 function _create_release_branch() {
   local clone_dir="${WORK_DIR}/${REPO_NAME}"
   local branch_2="v1.0.2-rc-tmp-bugfix-2.0.1"
-  pushd "${clone_dir}" >/dev/null || exit
+  pushd "${clone_dir}" > /dev/null || exit
   log-info "setting up release branch"
   su - "${GIT_USER}" -c "pushd ${clone_dir}; git checkout -b '${BRANCH_NAME}'"
   sed -i -e 's/printing/picking/g' -e 's/money/carrots/g' -e 's/CHA-CHING/CRUNCH/g' main.go
-  echo -e "Name: Bugs Bunny\nSecurity Question Answer: 'Crunchy King'\nSSN: 1234-BUNNY" >banking.txt
+  echo -e "Name: Bugs Bunny\nSecurity Question Answer: 'Crunchy King'\nSSN: 1234-BUNNY" > banking.txt
   su - "${GIT_USER}" -c "pushd ${clone_dir}; git add .; git commit -m 'Prepare release branch'"
   rm banking.txt
   su - "${GIT_USER}" -c "pushd ${clone_dir}; git add .; git commit -m 'oops did not mean to add that...'"
@@ -118,13 +118,13 @@ function _create_release_branch() {
   su - "${GIT_USER}" -c "pushd ${clone_dir}; git push --set-upstream origin '${branch_2}'"
   su - "${GIT_USER}" -c "pushd ${clone_dir}; git checkout '${DEFAULT_BRANCH}'"
   su - "${GIT_USER}" -c "pushd ${clone_dir}; git branch -D ${BRANCH_NAME} ${branch_2}"
-  popd >/dev/null || exit
+  popd > /dev/null || exit
 }
 
 function _polish_off() {
   chsh --shell "$(command -v git-shell)" "${GIT_USER}" # switch Git User to git-shell
   [[ -d /home/git/git-shell-commands ]] || mkdir -m 777 /home/git/git-shell-commands
-  cat >/home/git/git-shell-commands/no-interactive-login <<\EOF
+  cat > /home/git/git-shell-commands/no-interactive-login << \EOF
 #!/bin/sh
 printf '%s\n' "Hi! You've successfully authenticated, but we do not"
 printf '%s\n' "provide interactive shell access."
