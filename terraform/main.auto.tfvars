@@ -13,13 +13,12 @@ custom_security_group_ingress = [{
     protocol    = "tcp",
     description = "http",
     cidr_blocks = "0.0.0.0/0"
-  }
-  # Wetty config
-  , {
-    from_port   = 0,
-    to_port     = 6556,
+  },
+  {
+    from_port   = 443,
+    to_port     = 443,
     protocol    = "tcp",
-    description = "http",
+    description = "https for wetty",
     cidr_blocks = "0.0.0.0/0"
   }
 ]
