@@ -20,8 +20,8 @@ module "vpc" {
   name = local.name
   cidr = "10.0.0.0/16"
 
-  azs            = [data.aws_availability_zones.available.names[0]]
-  public_subnets = ["10.0.1.0/24"]
+  azs            = [data.aws_availability_zones.available.names[0], data.aws_availability_zones.available.names[1]]
+  public_subnets = cidrsubnets("10.0.0.0/16", 8, 8)
 
   enable_nat_gateway = false
 
@@ -124,7 +124,7 @@ module "team_servers" {
   instance_type               = "t3a.micro"
   key_name                    = aws_key_pair.main.key_name
   vpc_security_group_ids      = [module.security_group.security_group_id]
-  subnet_id                   = module.vpc.public_subnets[0]
+  subnet_id                   = module.vpc.public_subnets[count.index % 2]
   associate_public_ip_address = true
 
   user_data = <<-EOF
@@ -133,6 +133,8 @@ module "team_servers" {
     # NOTE: setting sshd to listen on both 2332 AND regular 22
     grep -q 2332 /etc/ssh/sshd_config || printf 'Port 2332\nPort 22\n' >> /etc/ssh/sshd_config
     systemctl restart ssh
+    # Variables to be sourced before init.sh runs
+    printf 'export team_name="Team-${count.index + 1}"\nexport db_addr="${module.db.private_ip}"\n' > /tmp/.tfenv
   EOF
 
   tags = local.tags

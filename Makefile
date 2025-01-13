@@ -1,4 +1,4 @@
-local_team_servers := $(shell vagrant status | grep -E -o 'team[0-9]+')
+local_team_servers = $(shell vagrant status | grep -E -o 'team[0-9]+')
 
 ci:
 	@bash ./scripts/ci.sh
@@ -8,9 +8,11 @@ up-local:
 	@vagrant up --parallel
 
 up-aws:
+	@terraform -chdir=./terraform init
 	@terraform -chdir=./terraform apply
 
 yeet-aws:
+	@terraform -chdir=./terraform init
 	@terraform -chdir=./terraform apply -auto-approve
 	@printf 'Waiting 30s for EC2 instances to hopefully process userdata...\n' && sleep 30
 	@make -s provision-aws
