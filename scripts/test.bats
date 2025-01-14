@@ -85,6 +85,7 @@ teardown_file() {
   rm -f /home/appuser/congrats.md
   rm -f "${wsroot}"/team_has_been_congratulated
   rm -rf /tmp/git.backup/ # keep git challenges from messing up setup
+  rm -f /home/appuser/.ssh/id_rsa*
   systemctl start linux-workshop-admin.timer
 }
 
