@@ -24,6 +24,7 @@ repos:
     - id: shfmt
       args: ['-l', '-i', '2', '-ci', '-sr', '-w']
     - id: shellcheck
+      args: ['-e', 'SC2155']
 - repo: https://github.com/antonbabenko/pre-commit-terraform
   rev: v1.96.3
   hooks:

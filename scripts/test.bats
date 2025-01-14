@@ -13,7 +13,7 @@
 wsroot='/.ws'
 
 if [[ "$(id -u)" -ne 0 ]]; then
-  printf 'Tests must be run as root user.\n' >/dev/stderr
+  printf 'Tests must be run as root user.\n' > /dev/stderr
   exit 1
 fi
 
@@ -85,6 +85,7 @@ teardown_file() {
   rm -f /home/appuser/congrats.md
   rm -f "${wsroot}"/team_has_been_congratulated
   rm -rf /tmp/git.backup/ # keep git challenges from messing up setup
+  rm -f /home/appuser/.ssh/id_rsa*
   systemctl start linux-workshop-admin.timer
 }
 
@@ -118,7 +119,7 @@ _solve-challenge-2() {
 
 _solve-challenge-3() {
   _solve-challenge-2
-  cat <<EOF > /etc/systemd/system/app.service
+  cat << EOF > /etc/systemd/system/app.service
 [Unit]
 Description=Prints money!
 
@@ -141,7 +142,7 @@ _solve-challenge-4() {
   cp /opt/app/app /opt/app/dist/linux/app/usr/bin/app
   dpkg-deb --build /opt/app/dist/linux/app
   apt-get install -y /opt/app/dist/linux/app.deb
-  cat <<EOF > /etc/systemd/system/app-deb.service
+  cat << EOF > /etc/systemd/system/app-deb.service
 [Unit]
 Description=Prints money!
 
@@ -178,7 +179,7 @@ _solve-challenge-6() {
   chmod 700 "${ssh_dir}"
   su - "${user}" -c "ssh-keygen -t rsa -f ${private_key_file} -q -N ''"
   cp "${public_key_file}" "/srv/git/ssh-keys/"
-  su - "${user}" -c "ssh-keyscan -H localhost >> ${known_hosts_file}" 2>/dev/null
+  su - "${user}" -c "ssh-keyscan -H localhost >> ${known_hosts_file}" 2> /dev/null
 }
 
 _solve-challenge-7() {
@@ -288,10 +289,10 @@ _solve-challenge-7() {
   sleep 1
   printf 'DEBUG: Score from challenge 5: %s\n' "${score}"
   counter=0
-  until timeout 1s curl -fsSL "${db_addr}:8000" ; do
+  until timeout 1s curl -fsSL "${db_addr}:8000"; do
     printf 'Web app not reachable, trying again...\n' >&2
     counter="$((counter + 1))"
-    if [[ "${counter}" -ge 30 ]] ; then
+    if [[ "${counter}" -ge 30 ]]; then
       return 1
     fi
     sleep 1
@@ -322,13 +323,13 @@ _solve-challenge-7() {
   local score="$(_get-score)"
   sleep 1
   printf 'DEBUG: Score from challenge 7: %s\n' "${score}"
-  pushd "${git_dir}" >/dev/null
+  pushd "${git_dir}" > /dev/null
   git config --global --add safe.directory ${git_dir}
-  if [ ! "$(git rev-parse main)" = "$(git rev-parse release/bunnies_v1)" ] ; then
+  if [ ! "$(git rev-parse main)" = "$(git rev-parse release/bunnies_v1)" ]; then
     return 1
   fi
   sleep 1
-  popd >/dev/null
+  popd > /dev/null
   [[ -f "/home/appuser/congrats.md" ]]
 }
 

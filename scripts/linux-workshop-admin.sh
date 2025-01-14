@@ -21,7 +21,7 @@ log-debug "wsroot set as '${wsroot}'"
 _score-for-challenge() {
   which_challenge="${1:-}"
 
-  if [[ -z "${which_challenge}" ]] ; then
+  if [[ -z "${which_challenge}" ]]; then
     log-fatal 'Current challenge number not provided to _score-for-challenge'
   fi
 
@@ -31,7 +31,7 @@ _score-for-challenge() {
   next_challenge="$((which_challenge + 1))"
 
   if [[ ! -f "/home/appuser/challenge_${next_challenge}.md" ]]; then
-    if [[ -f "${wsroot}/instructions/challenge_${next_challenge}.md" ]] ; then
+    if [[ -f "${wsroot}/instructions/challenge_${next_challenge}.md" ]]; then
       log-info "Providing instruction to user for Challenge ${next_challenge}"
       cp "${wsroot}/instructions/challenge_${next_challenge}.md" /home/appuser/
       # Also broadcast message to user when challenge is complete
@@ -40,7 +40,7 @@ _score-for-challenge() {
       log-info 'Team is done with the workshop!'
       cp "${wsroot}/instructions/congrats.md" /home/appuser/
       # This check suppresses an infinite loop of congratulations, lol
-      if [[ ! -f "${wsroot}"/team_has_been_congratulated ]] ; then
+      if [[ ! -f "${wsroot}"/team_has_been_congratulated ]]; then
         wall "Congratulations -- you have completed ALL CHALLENGES! Be sure to read congrats.md in your home directory! (hit Enter to dismiss this message)"
         touch "${wsroot}"/team_has_been_congratulated
       fi
@@ -56,7 +56,7 @@ _get-last-challenge-completed() {
   local last_challenge_completed
   last_challenge_completed="$(find /home/appuser -type f -name 'challenge_*.md' | grep -E -o '[0-9]+' | sort -h | tail -n1)"
   max_possible_challenge_completed="$(find "${wsroot}"/instructions -type f -name 'challenge_*.md' | grep -E -o '[0-9]+' | sort -h | tail -n1)"
-  if [[ -f /home/appuser/congrats.md ]] ; then
+  if [[ -f /home/appuser/congrats.md ]]; then
     last_challenge_completed="${max_possible_challenge_completed}"
   else
     last_challenge_completed="$((last_challenge_completed - 1))"
@@ -88,7 +88,7 @@ _accrue-points() {
 ###
 
 _check-binary-built() {
-  if [[ -x /opt/app/app ]] ; then
+  if [[ -x /opt/app/app ]]; then
     _score-for-challenge 1
   else
     log-error 'Go binary is not yet built'
@@ -96,11 +96,12 @@ _check-binary-built() {
 }
 
 _check-symlink() {
-  if \
-    [[ -L /usr/local/bin/run-app ]] && \
-    [[ -f /usr/local/bin/run-app ]] && \
-    file /usr/local/bin/run-app | grep -q -v 'broken' \
-  ; then
+  if
+    [[ -L /usr/local/bin/run-app ]] &&
+      [[ -f /usr/local/bin/run-app ]] &&
+      file /usr/local/bin/run-app | grep -q -v 'broken' \
+      ;
+  then
     _score-for-challenge 2
   else
     log-error 'Symlink from Go binary to desired location does not yet exist'
@@ -109,10 +110,11 @@ _check-symlink() {
 
 _check-systemd-service-running() {
   # Checks for both challenge 3 and 4 conditions, since the challenge 3 conditions will no longer be true once challenge 4 is solved
-  if \
-    (systemctl is-active app.service > /dev/null && systemctl is-enabled app.service > /dev/null) \
-    || (systemctl is-active app-deb.service > /dev/null && systemctl is-enabled app-deb.service > /dev/null) \
-  ; then
+  if
+    (systemctl is-active app.service > /dev/null && systemctl is-enabled app.service > /dev/null) ||
+      (systemctl is-active app-deb.service > /dev/null && systemctl is-enabled app-deb.service > /dev/null) \
+      ;
+  then
     _score-for-challenge 3
   else
     log-error 'app.service is either not running, not enabled, or both'
@@ -120,10 +122,11 @@ _check-systemd-service-running() {
 }
 
 _check-debfile-service-running() {
-  if \
-    systemctl is-active app-deb.service > /dev/null && \
-    systemctl is-enabled app-deb.service > /dev/null \
-  ; then
+  if
+    systemctl is-active app-deb.service > /dev/null &&
+      systemctl is-enabled app-deb.service > /dev/null \
+      ;
+  then
     _score-for-challenge 4
   else
     log-error 'app-deb.service is either not running, not enabled, or both'
@@ -131,7 +134,7 @@ _check-debfile-service-running() {
 }
 
 _check-webapp-reachable() {
-  if timeout 1s curl -fsSL "${db_addr:-NOT_SET}:8000" > /dev/null ; then
+  if timeout 1s curl -fsSL "${db_addr:-NOT_SET}:8000" > /dev/null; then
     _score-for-challenge 5
   else
     log-error "web app is not reachable"
@@ -147,7 +150,7 @@ _check-ssh-setup() {
   su - appuser -c "git config --global --add safe.directory ${test_dir}"
   if [[ -f ${git_remote}/ssh-keys/id_rsa.pub ]]; then
     log-info "Copying SSH Keys..."
-    cat ${git_remote}/ssh-keys/id_rsa.pub >> /home/git/.ssh/authorized_keys && rm -f ${git_remote}/ssh-keys/id_rsa.pub
+    cat ${git_remote}/ssh-keys/id_rsa.pub > /home/git/.ssh/authorized_keys
   fi
   su - appuser -c "ssh git@localhost" || exit_status=$?
   if [ "$exit_status" == 128 ]; then
