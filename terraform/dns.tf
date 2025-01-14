@@ -26,7 +26,7 @@ resource "aws_route53_record" "teams" {
   type       = "A"
   ttl        = 300 #5 mins
   records    = [module.team_servers[count.index].public_ip]
-  depends_on = [aws_route53_record.hub]
+  depends_on = [aws_route53_record.db]
 }
 
 resource "aws_route53_record" "db" {
